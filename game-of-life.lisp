@@ -1,5 +1,4 @@
 (ql:quickload 'cl-charms)
-(declaim (optimize (speed 0) (safety 3) (debug 3)))
 
 (defpackage #:game-of-life
   (:use #:cl #:cl-charms)
