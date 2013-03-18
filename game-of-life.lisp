@@ -91,7 +91,47 @@
   (loop for (x y) on coords by #'cddr
        do (setf (aref *board* x y) 't)))
 
-(populate '(5 5
-            5 6
-            5 7))
+(defun create-blinker ()
+  (populate '(5 5
+              5 6
+              5 7)))
+
+(defun create-block ()
+    (populate '(5 5
+                5 6
+                6 5
+                6 6)))
+
+(defun create-beehive ()
+  (populate '(20 20
+              20 21
+              21 19
+              21 22
+              22 20
+              22 21)))
+
+(defun create-boat ()
+  (populate '(20 20
+              20 21
+              21 20
+              21 22
+              22 21)))
+
+(defun create-toad ()
+  (populate '(20 20
+              20 21
+              20 22
+              21 19
+              21 20
+              21 21)))
+
+(defun create-beacon ()
+  (populate '(20 20
+              20 21
+              21 20
+              21 21
+              22 22
+              22 23
+              23 22
+              23 23)))
 (run)
