@@ -165,8 +165,20 @@ resulting S-Expression."
     (ignore-errors
       (apply 'read-from-string str read-from-string-args))))
 
-(let ((fn (get-fn-from-argv))
-      (steps (get-num-timesteps-from-argv)))
-  (format t "your arguments, sir: ~A, ~A~%" fn steps))
+(defun read-pattern (name)
+  (with-open-file (stream "patterns")
+    (let ((pattern '()))
+      (do ((line (read-line stream nil)
+                 (read-line stream nil)))
+          ((null line) (reverse pattern))
+        (when (equal line name)
+          (do ((pattern-line (read-line stream nil)
+                             (read-line stream nil)))
+              ((or (null pattern-line) (equal pattern-line "")))
+                           (push pattern-line pattern)))))))
+
+(defun sanitize-string (string)
+  (string-downcase (substitute #\- #\Space string)))
+
 
 (run (get-fn-from-argv))
