@@ -8,7 +8,7 @@
 
 (defconstant +xmax+ 80)
 (defconstant +ymax+ 80)
-
+(defvar *time-steps*)
 (defvar *board* (make-array (list +xmax+ +ymax+) :initial-element nil))
 
 (defun update-board ()
@@ -54,20 +54,22 @@
         0
         1)))
 
-(defun run ()
-  (init)
+(defun run (structure-creating-fn)
+  (init structure-creating-fn)
   (game-loop)
   (exit-life))
 
-(defun init ()
+(defun init (structure-creating-fn)
+  (funcall structure-creating-fn)
   (initscr)
   (raw)
   (keypad *stdscr* TRUE)
   (curs-set 0)
-  (noecho))
+  (noecho)
+  (set-num-timesteps))
 
 (defun game-loop ()
-  (dotimes (i 20)
+  (dotimes (i *time-steps*)
     (progn (draw-board)
            (update-board)
            (sleep 0.5))))
@@ -134,4 +136,37 @@
               22 23
               23 22
               23 23)))
-(run)
+
+(defmacro get-fn-from-argv ()
+  (let* ((args sb-ext:*posix-argv*)
+         (num-args (length args))
+         (default-structure "TOAD")
+         (structure (if (> num-args 1)
+                        (second args)
+                        default-structure))
+         (fn-name (intern (concatenate 'string "CREATE-" structure))))
+    `(function ,fn-name)))
+
+(defun get-num-timesteps-from-argv ()
+  (let* ((args sb-ext:*posix-argv*)
+         (num-args (length args)))
+    (if (> num-args 2)
+        (safely-read-from-string (third args))
+        20)))
+
+(defun set-num-timesteps ()
+  (setf *time-steps* (get-num-timesteps-from-argv)))
+
+(defun safely-read-from-string (str &rest read-from-string-args)
+  "Read an expression from the string STR, with *READ-EVAL* set
+to NIL. Any unsafe expressions will be replaced by NIL in the
+resulting S-Expression."
+  (let ((*read-eval* nil))
+    (ignore-errors
+      (apply 'read-from-string str read-from-string-args))))
+
+(let ((fn (get-fn-from-argv))
+      (steps (get-num-timesteps-from-argv)))
+  (format t "your arguments, sir: ~A, ~A~%" fn steps))
+
+(run (get-fn-from-argv))
