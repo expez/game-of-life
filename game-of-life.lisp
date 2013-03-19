@@ -6,8 +6,8 @@
 
 (in-package #:gol)
 
-(defconstant +xmax+ 120)
-(defconstant +ymax+ 120)
+(defconstant +xmax+ 100)
+(defconstant +ymax+ 100)
 (defvar *time-steps*)
 (defvar *board* (make-array (list +xmax+ +ymax+) :initial-element nil))
 
@@ -148,10 +148,10 @@ resulting S-Expression."
          (start (- (/ +xmax+ 2) (/ pattern-length 2))))
     (loop
        for line in pattern
-       for x from 8 upto +xmax+
+       for x from start upto +xmax+
        do (loop
              for char across line
-             for y from 8 upto +ymax+
+             for y from start upto +ymax+
              do (when (char= char #\*)
                   (setf (aref *board* x y) 't))))))
 
