@@ -1,5 +1,18 @@
 # Conway's game of life
 
-This is a super basic implementation of Conway's game of life in common lisp.  I wrote this while learning common lisp because I wanted a tiny project I could use to check out the ncurses bindings available in cl.  Thus, this little program uses cl-charms to output to the terminal.
+This is a basic implementation of Conway's game of life in common lisp.  I wrote this while learning common lisp because I wanted a tiny project I could use to check out the ncurses bindings available in cl.  Thus, this little program uses cl-charms to output to the terminal.
 
-If you're looking for a game of life implementation to play with, this is unfortunately not the place to look.  I haven't taken the time to implement an interface to put interesting structures like the `glider` or `spaceship` onto the board.  Instead the user is left to edit the source code itself.
+There are a ton of interesting structures available for game of life.  While looking around I found [this glossary](http://www.radicaleye.com/lifepage/glossary.html).  I removed anything which isn't actually a pattern and saved the rest in the file `patterns`.  This program treats the glossary as data and we can instantiate any patterns in that list.
+
+## Usage
+
+`sbcl --load game-of-life.lisp <name-of-pattern> <simulation duration in seconds>`
+
+Any spaces in the name of the pattern has to be replaced with a `-`.  The default duration for the simulation is 20s.
+
+`sbcl --load game-of-life.lisp cis-boat-with-tail 30` will display the cis-boat with tail pattern for 30s.
+
+### Dependencies
+
+* SBCL
+* [Quicklisp](www.quicklisp.org)
