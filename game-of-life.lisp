@@ -91,16 +91,12 @@
   (endwin)
   (sb-ext:exit))
 
-(defun populate (coords)
-  (loop for (x y) on coords by #'cddr
-       do (setf (aref *board* x y) 't)))
-
 (defun get-pattern-name-from-argv ()
   (let* ((args sb-ext:*posix-argv*)
          (num-args (length args))
          (default-pattern "TOAD"))
     (if (> num-args 1)
-        (sanitize-string (second args))
+        (sanitize-name (second args))
         default-pattern)))
 
 (defun get-num-timesteps-from-argv ()
@@ -114,9 +110,6 @@
   (setf *time-steps* (get-num-timesteps-from-argv)))
 
 (defun safely-read-from-string (str &rest read-from-string-args)
-  "Read an expression from the string STR, with *READ-EVAL* set
-to NIL. Any unsafe expressions will be replaced by NIL in the
-resulting S-Expression."
   (let ((*read-eval* nil))
     (ignore-errors
       (apply 'read-from-string str read-from-string-args))))
@@ -126,14 +119,14 @@ resulting S-Expression."
     (let ((pattern '()))
       (do ((line (read-line stream nil)
                  (read-line stream nil)))
-          ((null line) (reverse pattern))
-        (when (equal (sanitize-string line) name)
+          ((null line) (sanitize-pattern (nreverse pattern)))
+        (when (equal (sanitize-name line) name)
           (do ((pattern-line (read-line stream nil)
                              (read-line stream nil)))
               ((or (null pattern-line) (equal pattern-line "")))
                            (push pattern-line pattern)))))))
 
-(defun sanitize-string (string)
+(defun sanitize-name (string)
   (string-downcase (substitute #\- #\Space string)))
 
 (defun sanitize-pattern (pattern)
