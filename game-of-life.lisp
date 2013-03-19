@@ -54,13 +54,15 @@
         0
         1)))
 
-(defun run (structure-creating-fn)
-  (init structure-creating-fn)
+(defun run ()
+  (init)
   (game-loop)
   (exit-life))
 
-(defun init (structure-creating-fn)
-  (funcall structure-creating-fn)
+(defun init ()
+  (let* ((name (get-pattern-name-from-argv))
+         (pattern (sanitize-pattern (read-pattern-from-file name))))
+    (populate-board pattern))
   (initscr)
   (raw)
   (keypad *stdscr* TRUE)
@@ -93,59 +95,13 @@
   (loop for (x y) on coords by #'cddr
        do (setf (aref *board* x y) 't)))
 
-(defun create-blinker ()
-  (populate '(5 5
-              5 6
-              5 7)))
-
-(defun create-block ()
-    (populate '(5 5
-                5 6
-                6 5
-                6 6)))
-
-(defun create-beehive ()
-  (populate '(20 20
-              20 21
-              21 19
-              21 22
-              22 20
-              22 21)))
-
-(defun create-boat ()
-  (populate '(20 20
-              20 21
-              21 20
-              21 22
-              22 21)))
-
-(defun create-toad ()
-  (populate '(20 20
-              20 21
-              20 22
-              21 19
-              21 20
-              21 21)))
-
-(defun create-beacon ()
-  (populate '(20 20
-              20 21
-              21 20
-              21 21
-              22 22
-              22 23
-              23 22
-              23 23)))
-
-(defmacro get-fn-from-argv ()
+(defun get-pattern-name-from-argv ()
   (let* ((args sb-ext:*posix-argv*)
          (num-args (length args))
-         (default-structure "TOAD")
-         (structure (if (> num-args 1)
-                        (second args)
-                        default-structure))
-         (fn-name (intern (concatenate 'string "CREATE-" structure))))
-    `(function ,fn-name)))
+         (default-pattern "TOAD"))
+    (if (> num-args 1)
+        (second args)
+        default-pattern)))
 
 (defun get-num-timesteps-from-argv ()
   (let* ((args sb-ext:*posix-argv*)
@@ -165,7 +121,7 @@ resulting S-Expression."
     (ignore-errors
       (apply 'read-from-string str read-from-string-args))))
 
-(defun read-pattern (name)
+(defun read-pattern-from-file (name)
   (with-open-file (stream "patterns")
     (let ((pattern '()))
       (do ((line (read-line stream nil)
@@ -180,5 +136,21 @@ resulting S-Expression."
 (defun sanitize-string (string)
   (string-downcase (substitute #\- #\Space string)))
 
+(defun sanitize-pattern (pattern)
+  (labels ((pattern-symbol-p (char)
+             (or (char= char #\*) (char= char #\.)))
+           (sanitizer (string)
+             (remove-if-not #'pattern-symbol-p string)))
+    (mapcar #'sanitizer pattern)))
 
-(run (get-fn-from-argv))
+(defun populate-board (pattern)
+  (loop
+     for line in pattern
+     for x from 0 upto +xmax+
+     do (loop
+           for char across line
+           for y from 0 upto +ymax+
+           do (when (char= char #\*)
+                (setf (aref *board* x y) 't)))))
+
+(run)
