@@ -12,6 +12,8 @@ Any spaces in the name of the pattern has to be replaced with a `-`.  The defaul
 
 `sbcl --load game-of-life.lisp cis-boat-with-tail 30` will display the cis-boat with tail pattern for 30s.
 
+By replacing the pattern name with the secret keyword `all` a loop is started which loops through all the available patterns.
+
 ### Dependencies
 
 * SBCL

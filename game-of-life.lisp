@@ -8,6 +8,8 @@
 
 (defconstant +xmax+ 100)
 (defconstant +ymax+ 100)
+(defconstant +pattern-file+ "patterns")
+
 (defvar *time-steps*)
 (defvar *board* (make-array (list +xmax+ +ymax+) :initial-element nil))
 
@@ -55,20 +57,26 @@
         1)))
 
 (defun run ()
-  (init)
-  (game-loop)
+  (init-curses)
+  (set-num-timesteps)
+  (let* ((name (get-pattern-name-from-argv)))
+    (if (string-equal name "all")
+        (mapc #'run-pattern (get-bag-of-patterns))
+        (run-pattern name)))
   (exit-life))
 
-(defun init ()
-  (let* ((name (get-pattern-name-from-argv))
-         (pattern (sanitize-pattern (read-pattern-from-file name))))
+(defun run-pattern (name)
+  (let ((pattern (read-pattern-from-file name)))
     (populate-board pattern))
+  (game-loop)
+  (reset-board))
+
+(defun init-curses ()
   (initscr)
   (raw)
   (keypad *stdscr* TRUE)
   (curs-set 0)
-  (noecho)
-  (set-num-timesteps))
+  (noecho))
 
 (defun game-loop ()
   (dotimes (i *time-steps*)
@@ -138,7 +146,7 @@
 
 (defun populate-board (pattern)
   (let* ((pattern-length (length (first pattern)))
-         (start (- (/ +xmax+ 2) (/ pattern-length 2))))
+         (start (round (- (/ +xmax+ 2) (/ pattern-length 2)))))
     (loop
        for line in pattern
        for x from start below +xmax+
@@ -166,4 +174,5 @@
                        (char= char  #\*)
                        (char= char #\.))
              (push line names))))))))
+
 (run)
