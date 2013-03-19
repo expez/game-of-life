@@ -6,8 +6,8 @@
 
 (in-package #:gol)
 
-(defconstant +xmax+ 80)
-(defconstant +ymax+ 80)
+(defconstant +xmax+ 120)
+(defconstant +ymax+ 120)
 (defvar *time-steps*)
 (defvar *board* (make-array (list +xmax+ +ymax+) :initial-element nil))
 
@@ -100,7 +100,7 @@
          (num-args (length args))
          (default-pattern "TOAD"))
     (if (> num-args 1)
-        (second args)
+        (sanitize-string (second args))
         default-pattern)))
 
 (defun get-num-timesteps-from-argv ()
@@ -127,7 +127,7 @@ resulting S-Expression."
       (do ((line (read-line stream nil)
                  (read-line stream nil)))
           ((null line) (reverse pattern))
-        (when (equal line name)
+        (when (equal (sanitize-string line) name)
           (do ((pattern-line (read-line stream nil)
                              (read-line stream nil)))
               ((or (null pattern-line) (equal pattern-line "")))
@@ -144,13 +144,15 @@ resulting S-Expression."
     (mapcar #'sanitizer pattern)))
 
 (defun populate-board (pattern)
-  (loop
-     for line in pattern
-     for x from 0 upto +xmax+
-     do (loop
-           for char across line
-           for y from 0 upto +ymax+
-           do (when (char= char #\*)
-                (setf (aref *board* x y) 't)))))
+  (let* ((pattern-length (length (first pattern)))
+         (start (- (/ +xmax+ 2) (/ pattern-length 2))))
+    (loop
+       for line in pattern
+       for x from 8 upto +xmax+
+       do (loop
+             for char across line
+             for y from 8 upto +ymax+
+             do (when (char= char #\*)
+                  (setf (aref *board* x y) 't))))))
 
 (run)
