@@ -155,4 +155,22 @@ resulting S-Expression."
              do (when (char= char #\*)
                   (setf (aref *board* x y) 't))))))
 
+(defun reset-board ()
+  (loop
+     for x from 0 to +xmax+
+     for y from 0 to +ymax+
+       do (setf (aref *board* x y) nil)))
+
+(defun get-bag-of-patterns ()
+  (with-open-file (stream +pattern-file+)
+    (let ((names '()))
+      (do ((line (read-line stream nil)
+                 (read-line stream nil)))
+          ((null line) (mapcar #'sanitize-name (nreverse names)))
+        (unless (string= line "")
+            (let ((char (elt line 0)))
+           (unless (or (char= char #\Space)
+                       (char= char  #\*)
+                       (char= char #\.))
+             (push line names))))))))
 (run)
