@@ -148,17 +148,17 @@ resulting S-Expression."
          (start (- (/ +xmax+ 2) (/ pattern-length 2))))
     (loop
        for line in pattern
-       for x from start upto +xmax+
+       for x from start below +xmax+
        do (loop
              for char across line
-             for y from start upto +ymax+
+             for y from start below +ymax+
              do (when (char= char #\*)
                   (setf (aref *board* x y) 't))))))
 
 (defun reset-board ()
   (loop
-     for x from 0 to +xmax+
-     for y from 0 to +ymax+
+     for x from 0 below +xmax+
+     for y from 0 below +ymax+
        do (setf (aref *board* x y) nil)))
 
 (defun get-bag-of-patterns ()
